@@ -8,6 +8,7 @@ import AppContext from './context';
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
 import Orders from './pages/Orders';
+import {API_BASE_URL} from "./pages/AuthPage";
 
 function App() {
   const [items, setItems] = React.useState([]);
@@ -21,9 +22,21 @@ function App() {
     async function fetchData() {
       try {
         const [cartResponse, favoritesResponse, itemsResponse] = await Promise.all([
-          axios.get('http://localhost:8080/foods/cards'),
-          axios.get('http://localhost:8080/foods/favorites'),
-          axios.get('http://localhost:8080/foods'),
+          axios.get(API_BASE_URL + '/foods/cards', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            }
+          }),
+          axios.get(API_BASE_URL + '/foods/favorites', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            }
+          }),
+          axios.get(API_BASE_URL + '/foods', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            }
+          }),
         ]);
 
         setIsLoading(false);
@@ -44,10 +57,18 @@ function App() {
       const findItem = cartItems.find((item) => Number(item.parentId) === Number(obj.id));
       if (findItem) {
         setCartItems((prev) => prev.filter((item) => Number(item.parentId) !== Number(obj.id)));
-        await axios.delete(`http://localhost:8080/foods/${findItem.id}/card`);
+        await axios.delete(API_BASE_URL + `/foods/${findItem.id}/card`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+          }
+        });
       } else {
         setCartItems((prev) => [...prev, obj]);
-        const { data } = await axios.post(`http://localhost:8080/foods/${obj.id}/card`);
+        const { data } = await axios.post(API_BASE_URL + `/foods/${obj.id}/card`, null, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+          }
+        });
         setCartItems((prev) =>
           prev.map((item) => {
             if (item.parentId === data.parentId) {
@@ -68,7 +89,11 @@ function App() {
 
   const onRemoveItem = (id) => {
     try {
-      axios.delete(`http://localhost:8080/foods/${id}/favorite`);
+      axios.delete(API_BASE_URL + `/foods/${id}/favorite`, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        }
+      });
       setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(id)));
     } catch (error) {
       alert('Ошибка при удалении из корзины');
@@ -79,12 +104,21 @@ function App() {
   const onAddToFavorite = async (obj) => {
     try {
       if (favorites.find((favObj) => Number(favObj.id) === Number(obj.id))) {
-        axios.delete(`http://localhost:8080/foods/${obj.id}/favorite`);
+        axios.delete(API_BASE_URL + `/foods/${obj.id}/favorite`, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+          }
+        });
         setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)));
       } else {
         const { data } = await axios.post(
-            `http://localhost:8080/foods/${obj.id}/favorite`,
+            API_BASE_URL + `/foods/${obj.id}/favorite`,
             obj,
+            {
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+              }
+            }
         );
         setFavorites((prev) => [...prev, data]);
       }

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import Card from '../components/Card';
 import AppContext from '../context';
+import {API_BASE_URL} from "./AuthPage";
 
 function Orders() {
   const { onAddToFavorite, onAddToCart } = React.useContext(AppContext);
@@ -12,7 +13,11 @@ function Orders() {
   React.useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get('http://localhost:8080/foods/orders');
+        const { data } = await axios.get(API_BASE_URL + '/foods/orders', {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+          }
+        });
         setOrders(data);
         setIsLoading(false);
       } catch (error) {
@@ -29,8 +34,16 @@ function Orders() {
       </div>
 
       <div className="d-flex flex-wrap">
-        {(isLoading ? [...Array(8)] : orders).map((item, index) => (
-          <Card key={index} loading={isLoading} {...item} />
+        {orders.map(item => (
+            <div>
+              <text style={{}}>{item.address} ({item.status}, {item.date})</text>
+              <div style={{height: "30px"}}/>
+              <div className="d-flex flex-wrap">
+                {item.orders.map((item, index) => (
+                    <Card key={index} loading={isLoading} {...item.food} />
+                ))}
+              </div>
+            </div>
         ))}
       </div>
     </div>

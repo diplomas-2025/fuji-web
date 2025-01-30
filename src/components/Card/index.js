@@ -1,76 +1,124 @@
 import React from 'react';
-import ContentLoader from 'react-content-loader';
-
+import {
+    Card as MuiCard,
+    CardMedia,
+    CardContent,
+    IconButton,
+    Typography,
+    Button,
+    Box,
+    CircularProgress,
+    useTheme,
+} from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { useContext } from 'react';
 import AppContext from '../../context';
 
-import styles from './Card.module.scss';
-
 function Card({
-  id,
-  title,
-  image,
-  price,
-  onFavorite,
-  onPlus,
-  favorited = false,
-  loading = false,
-}) {
-  const { isItemAdded } = React.useContext(AppContext);
-  const [isFavorite, setIsFavorite] = React.useState(favorited);
-  const obj = { id, parentId: id, title, image, price };
+                  id,
+                  title,
+                  image,
+                  price,
+                  onFavorite,
+                  onPlus,
+                  favorited = false,
+                  loading = false,
+              }) {
+    const theme = useTheme();
+    const { isItemAdded } = useContext(AppContext);
+    const [isFavorite, setIsFavorite] = React.useState(favorited);
+    const obj = { id, parentId: id, title, image, price };
 
-  const onClickPlus = () => {
-    onPlus(obj);
-  };
+    const onClickPlus = () => {
+        onPlus(obj);
+    };
 
-  const onClickFavorite = () => {
-    onFavorite(obj);
-    setIsFavorite(!isFavorite);
-  };
+    const onClickFavorite = () => {
+        onFavorite(obj);
+        setIsFavorite(!isFavorite);
+    };
 
-  return (
-    <div className={styles.card}>
-      {loading ? (
-        <ContentLoader
-          speed={2}
-          width={155}
-          height={250}
-          viewBox="0 0 155 265"
-          backgroundColor="#f3f3f3"
-          foregroundColor="#ecebeb">
-          <rect x="1" y="0" rx="10" ry="10" width="155" height="155" />
-          <rect x="0" y="167" rx="5" ry="5" width="155" height="15" />
-          <rect x="0" y="187" rx="5" ry="5" width="100" height="15" />
-          <rect x="1" y="234" rx="5" ry="5" width="80" height="25" />
-          <rect x="124" y="230" rx="10" ry="10" width="32" height="32" />
-        </ContentLoader>
-      ) : (
-        <>
-          {onFavorite && (
-            <div className={styles.favorite} onClick={onClickFavorite}>
-              <img src={isFavorite ? 'img/liked.svg' : 'img/unliked.svg'} alt="Unliked" />
-            </div>
-          )}
-          <img width="100%" height={135} src={image} alt="Sneakers" />
-          <h5>{title}</h5>
-          <div className="d-flex justify-between align-center">
-            <div className="d-flex flex-column">
-              <span>Цена:</span>
-              <b>{price} руб.</b>
-            </div>
-            {onPlus && (
-              <img
-                className={styles.plus}
-                onClick={onClickPlus}
-                src={isItemAdded(id) ? 'img/btn-checked.svg' : 'img/btn-plus.svg'}
-                alt="Plus"
-              />
+    return (
+        <MuiCard
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 3,
+                boxShadow: 5,
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: `0 8px 20px rgba(0, 0, 0, 0.2)`,
+                },
+                backgroundColor: theme.palette.background.paper,
+                cursor: "pointer"
+            }}
+        >
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 4 }}>
+                    <CircularProgress sx={{ color: theme.palette.primary.main }} />
+                </Box>
+            ) : (
+                <>
+                    <Box sx={{ position: 'relative' }}>
+                        <CardMedia
+                            component="img"
+                            height="250"
+                            image={image}
+                            alt={title}
+                            sx={{
+                                borderRadius: '8px',
+                                objectFit: 'cover',
+                                transition: 'transform 0.3s ease',
+                                '&:hover': {
+                                    transform: 'scale(1.1)',
+                                },
+                            }}
+                        />
+                        <IconButton
+                            sx={{
+                                position: 'absolute',
+                                top: 10,
+                                right: 10,
+                                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                                borderRadius: '50%',
+                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.9)' },
+                            }}
+                            onClick={onClickFavorite}
+                        >
+                            {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                    </Box>
+                    <CardContent sx={{ padding: 2 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 500, color: '#333', fontSize: 18 }} gutterBottom>
+                            {title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#666', fontSize: 14 }}>
+                            Цена: <strong>{price} руб.</strong>
+                        </Typography>
+                        {onPlus && (
+                            <Button
+                                variant="contained"
+                                color={isItemAdded(id) ? 'secondary' : 'primary'}
+                                onClick={onClickPlus}
+                                sx={{
+                                    marginTop: 2,
+                                    borderRadius: 20,
+                                    padding: '8px 16px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    '&:hover': { backgroundColor: isItemAdded(id) ? '#bdbdbd' : '#00796b' },
+                                }}
+                            >
+                                {isItemAdded(id) ? 'В корзине' : 'Добавить в корзину'}
+                            </Button>
+                        )}
+                    </CardContent>
+                </>
             )}
-          </div>
-        </>
-      )}
-    </div>
-  );
+        </MuiCard>
+    );
 }
 
 export default Card;
