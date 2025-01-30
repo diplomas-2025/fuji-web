@@ -232,6 +232,7 @@ const FoodPage = () => {
                                         borderRadius: "20px",  // More rounded corners
                                         padding: "10px 20px", // Larger padding for better touch area
                                         fontSize: "1rem", // Slightly larger font size
+                                        minWidth: "100px",
                                         boxShadow: selectedCategoryId === category.id ? "0px 4px 12px rgba(0, 0, 0, 0.2)" : "none", // Shadow for selected button
                                         border: selectedCategoryId === category.id ? "2px solid #fff" : "none", // White border for selected category
                                         "&:hover": {
